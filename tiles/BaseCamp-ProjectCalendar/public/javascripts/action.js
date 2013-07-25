@@ -21,7 +21,7 @@ var preOauth2DanceCallback = function() {
     }
 
     //$("#projectA").text(config.project) ;
-   // $("#decriptionA").text(config.description);
+    // $("#decriptionA").text(config.description);
     //$("#BasecampLinkA").attr( "href", config.url)  ;
 };
 
@@ -85,7 +85,7 @@ function doIt( host ) {
         oauth2SuccessCallback : oauth2SuccessCallback,
         preOauth2DanceCallback : preOauth2DanceCallback,
         onLoadCallback : onLoadCallback,
-        authorizeUrl : host + '/BaseCamp-ProjectInfo/oauth/authorizeUrl',
+        authorizeUrl : host + '/BaseCamp-ProjectCalendar/oauth/authorizeUrl',
         ticketURL: '/oauth/isAuthenticated',
         extraAuthParams: {
             type: 'web_server'

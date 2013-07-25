@@ -18,12 +18,31 @@ var count = 0;
 
 var jive = require("jive-sdk");
 
+
+// we're going to just use the data we received from the config for now as it isn't clear
+// that the project name or description can be changed once the project is created. So ..
+// no reason to query Basecamp for updated data on this tile ...
+
 exports.task = function() {
     jive.tiles.findByDefinitionName( "BaseCamp-ProjectInfo" ).then( function(tiles) {
         console.log( "length = ", tiles.length)
         tiles.forEach( function( tile ) {
             var description = tile.config['description'] ;
             var project = tile.config['project'];
+
+            // the actual url we get from Basecamp refers to the API url for
+            // the project. It APPEARS that the HTML url follows a pattern that
+            // we'll just implement here until we here otherwise ...
+            // the url we get, for example is https://basecamp.com/XXXXXXX/api/v1/YYYYYYY-basecamp-pp.json
+            //    where XXXXXXX = account ID
+            //          YYYYYYY = project ID
+            //          basecamp-pp = the first two words of the projecxt
+            //
+            //  we just need to get rid of the api/vi part and the .json part ...
+
+            var url = tile.config['url'];
+            url = url.replace("api/v1/", "") ;
+            url = url.replace(".json", "") ;
             if (description.length > 50)
             {
                 description = description.substring( 0, 46)  ;
@@ -45,8 +64,8 @@ exports.task = function() {
                         },
                         {
                             "name": "ID",
-                            "value": tile.config['id'] ,
-                            //"url" : tile.config['url']
+                            "value": tile.config['id'],
+                            //"url" : url
                         } ,
                         {   "name" : "Description",
                             "value" : description
@@ -57,7 +76,7 @@ exports.task = function() {
                     ],
                     "action":{
                         text : "Take a closer look ..." ,
-                        'context' : {name: project, description: description, id:tile.config['id'], url: tile.config['url']}
+                        'context' : {name: project, description: tile.config['description'], id:tile.config['id'], url: url}
                     }
                 }
             };
