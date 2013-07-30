@@ -62,7 +62,7 @@ function doIt( host ) {
                 //debugger;
 
                 var data = response.content;
-                debugger;
+                //debugger;
                 //console.log(data);
 
                 // could use a forEach or something here ...

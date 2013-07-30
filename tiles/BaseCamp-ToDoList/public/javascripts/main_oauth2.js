@@ -21,7 +21,55 @@ var onLoadCallback = function( config, identifiers ) {
     };
 };
 
+function populateToDoLists( host, ticketID, accountID, projectID)
+{
+    // get the data ...
+    var query="/projects/" + projectID + "/todolists.json";
+
+    $("#todoList").empty(); // Clear existing entries ...
+
+    osapi.http.get({
+        'href' : host + '/BaseCamp-ToDoList/oauth/query?' +
+            "&ts=" + new Date().getTime() +
+            "&ticketID=" + ticketID +
+            "&query=" + query + "&accountID=" + accountID,
+        headers : { 'Content-Type' : ['application/json'] },
+        //'format' : 'json',
+        'noCache': true,
+        'authz': 'signed'
+    }).execute(function( response ) {
+            //debugger;
+            //alert( "status=" + response.status) ;
+            if ( response.status >= 400 && response.status <= 599 ) {
+                alert("ERROR (get to do list)!" + JSON.stringify(response.content));
+            }
+            else
+            {
+                var items=[];
+                //debugger;
+                //alert("GOOD (get to do list) post!" + JSON.stringify(response.content, null, 2));
+                var body = response.content;
+                var json = JSON.parse(body);
+
+                if (json && json.length)
+                {
+                    for (i = 0; i < json.length; i++)
+                    {
+                        var opt;
+
+                         opt = "<option value=" + json[i]['id'] + ">" + json[i]['name']  +"</option>";
+
+                        $("#todoList").append(opt);
+
+                    }
+                }
+            }
+     });
+}
 function doIt( host ) {
+
+    var accountID;
+    var g_ticketID;
 
     //alert( "DOIT: host=" + host);
     var oauth2SuccessCallback = function(ticketID) {
@@ -38,6 +86,7 @@ function doIt( host ) {
         // we verified that the viewer ID already has a valid token without doing the OAuth2 dance ...
         if (ticketID == undefined)    ticketID = viewerID;
 
+        g_ticketID = ticketID;
         // set up a query to get this user's list of projects
         //debugger;
         osapi.http.get({
@@ -84,22 +133,37 @@ function doIt( host ) {
                     $("#projectList").append(opt);
 
                 }
+                populateToDoLists( host, ticketID, accountID, $("#projectList option:selected").val()) ;
 
+                //debugger
+                $("#projectList").change( function () {
+                    var projectID = $(this).attr('value');
+                    debugger;
+                    populateToDoLists( host, g_ticketID, accountID, projectID) ;
+                    //alert('Value change to ' + $(this).attr('value'));
+                })
                 $("#btn_done").click( function() {
                     //debugger;
                     var projectName = $("#projectList option:selected").text();
                     var projectID =  $("#projectList option:selected").val();
+                    var todoListID =   $("#todoList option:selected").val();
+                    var todoListDescription = $("#todoList option:selected").text();
 
                     var index = $("#projectList").prop("selectedIndex");
                     var url = data[index].url;
                     var description = data[index].description;
+
+
                     //debugger;
                     var toReturn = {
+                        "accountID"   : accountID,
+                        "projectID"  : projectID,
                         "project" : projectName,
-                        "accountID" : accountID,
+                        "todoListID" : todoListID,
                         "id" : projectID ,
                         "url"  : url,
                         "description" : description,
+                        "todoListDescription" : todoListDescription,
                         "isBasecamp" : true
                     };
 
@@ -125,7 +189,7 @@ function doIt( host ) {
         oauth2SuccessCallback : oauth2SuccessCallback,
         preOauth2DanceCallback : preOauth2DanceCallback,
         onLoadCallback : onLoadCallback,
-        authorizeUrl : host + '/BaseCamp-ProjectCalendar/oauth/authorizeUrl',
+        authorizeUrl : host + '/BaseCamp-ToDoList/oauth/authorizeUrl',
         ticketURL: '/oauth/isAuthenticated',
         extraAuthParams: {
             type: 'web_server'

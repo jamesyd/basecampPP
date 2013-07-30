@@ -25,7 +25,7 @@ var jive = require("jive-sdk");
 
 exports.task = function() {
     jive.tiles.findByDefinitionName( "BaseCamp-ProjectInfo" ).then( function(tiles) {
-        console.log( "length = ", tiles.length)
+        //console.log( "length = ", tiles.length)
         tiles.forEach( function( tile ) {
             var description = tile.config['description'] ;
             var project = tile.config['project'];

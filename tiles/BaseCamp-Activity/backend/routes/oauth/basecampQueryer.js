@@ -21,7 +21,7 @@ exports.handleBasecampQuery = function(req, res ) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
 
 
-        res.end(JSON.stringify(response['entity']));
+            res.end(JSON.stringify(response['entity']));
     }).catch(function (err) {
             res.writeHead(502, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(err));

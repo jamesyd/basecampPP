@@ -23,9 +23,7 @@ var sampleOauth = require("./routes/oauth/sampleOauth") ;
 exports.task = function() {
     jive.tiles.findByDefinitionName( "BaseCamp-ProjectCalendar" ).then( function(tiles) {
         tiles.forEach( function( tile) {
-            var query = tile.config['url']  ;
-            query = query.replace(".json", "/calendar_events.json")  ; // convert to the correct URL to get calendar entries ..
-            query = query.replace("https://basecamp.com", "") ; // now, just get rid of the host name ...
+
             var calendarUrl = tile.config['url'];
             // not sure how to display the calendar just for this project ... so for now just create a link to
             // the calendar for the account ..
@@ -38,17 +36,22 @@ exports.task = function() {
             else
                 calendarUrl = "";
 
+            var query = "/projects/" + tile.config['id']  + "/calendar_events.json";
+
             // the following 2 lines don't do it ... (trying to get calendar for specific project
             //calendarUrl = calendarUrl.replace("api/v1/", "") ;
             //calendarUrl = calendarUrl.replace(".json", "/calender") ;
-            basecamp_Helpers.queryBasecampV1( tile.config['ticketID'], sampleOauth, query).then(
+            basecamp_Helpers.queryBasecampV1( tile.config['accountID'], tile.config['ticketID'], sampleOauth, query).then(
                 function(response){
                  // good return ...
-                 console.log( "good query");
+                    var url = tile.config['url'];
+                    url = url.replace("api/v1/", "") ;
+                    url = url.replace(".json", "") ;
+                    console.log( "good query");
                     var dataToPush={
-                        data : {"title" : tile.config['project'] + " Events",
-                                "events" :[{}] ,
-                                "action" : {"text" : "Check out the Account Calendar" , "url" : calendarUrl}
+                        data : {"title" : tile.config['project'] + " ToDos",
+                            "events" :[{}] ,
+                            "action" : {"text" : "Check out the Account Calendar" , "url" : calendarUrl}
                         }
                     };
                     console.log( "number of events=" + response.entity.length) ;
@@ -73,9 +76,10 @@ exports.task = function() {
                             'context' : {name: tile.config['project'],
                                 description: tile.config['description'],
                                 id:tile.config['id'],
-                                url:  tile.config['url']}};
+                                url:  url}};
 
                     }
+
                     jive.tiles.pushData( tile, dataToPush );
                 },
                 function(response)
@@ -84,35 +88,7 @@ exports.task = function() {
                     console.log( "bad query");
                 }
             );
-            /*
-            var dataToPush = {
-                data: {
-                    "title": "Upcoming Events (from services.js)" +count,
-                    "events": [
-                        {
-                            "title": "August 4th BBQ",
-                            "location": "Denver, CO",
-                            "start": "2013-08-04T09:00:00-08:00",
-                            "description": "beer, bbq, and friends!" ,
-                            "action" : { "text" : "Click Me!", "url" : "http://my.yahoo.com//one" }
-                        } ,
-                        {
-                            "title": "Labor Day 30th annual",
-                            "location": "Carmet, CA",
-                            "start": "2013-08-28T09:00:00-08:00",
-                            "description": "fog, deck, vollyball, dice, count=" + count ,
-                            "action" : { "text" : "Click Me2!", "url" : "http://my.yahoo.com//two" }
-                        }
-                    ],
 
-                    "action": {
-                        "text": "Check out the weather!",
-                        "url" : "http://www.weather.com"}
-                }
-            };
-
-            jive.tiles.pushData( instance, dataToPush );
-            */
         } );
-    }, 5000);
+    }, 10000);
 };

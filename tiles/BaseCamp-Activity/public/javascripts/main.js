@@ -1,4 +1,3 @@
-
 var ticketErrorCallback = function() {
     alert('ticketErrorCallback error');
 };
@@ -85,7 +84,7 @@ function doIt( host ) {
 
                 }
 
-                $("#btn_done").click( function() {
+                $("#btn_submit").click( function() {
                     //debugger;
                     var projectName = $("#projectList option:selected").text();
                     var projectID =  $("#projectList option:selected").val();
@@ -93,7 +92,7 @@ function doIt( host ) {
                     var index = $("#projectList").prop("selectedIndex");
                     var url = data[index].url;
                     var description = data[index].description;
-                    //debugger;
+                    debugger;
                     var toReturn = {
                         "project" : projectName,
                         "accountID" : accountID,
@@ -125,7 +124,7 @@ function doIt( host ) {
         oauth2SuccessCallback : oauth2SuccessCallback,
         preOauth2DanceCallback : preOauth2DanceCallback,
         onLoadCallback : onLoadCallback,
-        authorizeUrl : host + '/BaseCamp-ProjectCalendar/oauth/authorizeUrl',
+        authorizeUrl : host + '/BaseCamp-Activity/oauth/authorizeUrl',
         ticketURL: '/oauth/isAuthenticated',
         extraAuthParams: {
             type: 'web_server'

@@ -9,7 +9,7 @@ exports.postBasecampV1 = postBasecampV1;
 
 exports.getAuthorizationInfo = getAuthorizationInfo;
 
-function queryBasecampV1(ticketID, myOauth, uri){
+function queryBasecampV1(accountID, ticketID, myOauth, uri){
 
     var tokenStore = myOauth.getTokenStore();
 
@@ -19,15 +19,13 @@ function queryBasecampV1(ticketID, myOauth, uri){
             //var host = found[0]['accessToken']['instance_url'];
 
             var headers = {
-                'User-Agent': 'Purposeful Places (jim.dickerson@jivesoftware.com',
+                'User-Agent': 'Purposeful Places',
                 'Authorization' : 'Bearer ' + accessToken
             };
 
-            console.log("queryBasecampV1: " + "https://api.github.com:" + uri + "?access_token=" + accessToken);
+            console.log("queryBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
             return jive.util.buildRequest(
-                // special case - set port to 0 to tell underlying SDK not to default to port 443
-                // we need to have NO port numbert attached to this request ....
-                "https://api.github.com" + uri + "?access_token=" + accessToken,
+                "https://basecamp.com/" + accountID + "/api/v1" + uri,
                 'GET', null, headers, null );
         }
 
@@ -40,13 +38,13 @@ function queryBasecampV1(ticketID, myOauth, uri){
 
         // fail
         function(err) {
-            jive.logger.error('Error querying GitHub', err);
+            jive.logger.error('Error querying Basecamp', err);
             return err;
         }
     );
 };
 
-function postBasecampV1(ticketID, myOauth, uri, data){
+function postBasecampV1(accountID, ticketID, myOauth, uri, data){
 
     var tokenStore = myOauth.getTokenStore();
 
@@ -57,16 +55,19 @@ function postBasecampV1(ticketID, myOauth, uri, data){
 
             var headers = {
                 'User-Agent': 'Purposeful Places'  ,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json' ,
+                'Authorization' : 'Bearer ' + accessToken
             };
 
 
             return jive.util.buildRequest(
-                // special case - set port to 0 to tell underlying SDK not to default to port 443
-                // we need to have NO port numbert attached to this request ....
                 "https://api.github.com" + uri + "?access_token=" + accessToken,
                 'POST', data, headers, null)
 
+            console.log("postBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
+            return jive.util.buildRequest(
+                "https://basecamp.com/" + accountID + "/api/v1" + uri,
+                'POST', data, headers, null );
         }
 
         throw Error('No token record found for ticket ID');
@@ -78,7 +79,7 @@ function postBasecampV1(ticketID, myOauth, uri, data){
 
         // fail
         function(err) {
-            jive.logger.error('Error posting to GitHub', err);
+            jive.logger.error('Error posting to Basecamp', err);
         }
     );
 };
