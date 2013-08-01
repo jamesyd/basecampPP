@@ -59,11 +59,6 @@ function postBasecampV1(accountID, ticketID, myOauth, uri, data){
                 'Authorization' : 'Bearer ' + accessToken
             };
 
-
-            return jive.util.buildRequest(
-                "https://api.github.com" + uri + "?access_token=" + accessToken,
-                'POST', data, headers, null)
-
             console.log("postBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
             return jive.util.buildRequest(
                 "https://basecamp.com/" + accountID + "/api/v1" + uri,

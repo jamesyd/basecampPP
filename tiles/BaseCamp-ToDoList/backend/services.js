@@ -54,9 +54,8 @@ function processTileInstance(instance) {
                var dueOn = "** unspecified **";
                 if (data[field].due_on != null)
                     dueOn =  data[field].due_on;
-                var url = config['url'] ;       // this is the API URL for the project
-               url = url.replace("api/v1/", "");      // convert to an HTML page for this project
-               url = url.replace(".json", "") ;
+               var url;
+               url = "https://basecamp.com/" + tile.config['accountID']  + "/projects/" + tile.config['id'] ;
                var icon = data[field]['creator']['avatar_url']  ;
                 return {
                     text: '' + title,
@@ -85,7 +84,7 @@ function processTileInstance(instance) {
                 }
             };
 
-            console.log("Prepared data", JSON.stringify(dataToPush));
+            //console.log("Prepared data", JSON.stringify(dataToPush));
 
             jive.tiles.pushData( instance, dataToPush );
         },

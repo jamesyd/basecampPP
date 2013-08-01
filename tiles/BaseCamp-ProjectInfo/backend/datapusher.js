@@ -17,6 +17,8 @@
 var count = 0;
 
 var jive = require("jive-sdk");
+var basecamp_Helpers = require( "./routes/oauth/basecamp_helpers");
+var sampleOauth = require("./routes/oauth/sampleOauth") ;
 
 
 // we're going to just use the data we received from the config for now as it isn't clear
@@ -27,22 +29,82 @@ exports.task = function() {
     jive.tiles.findByDefinitionName( "BaseCamp-ProjectInfo" ).then( function(tiles) {
         //console.log( "length = ", tiles.length)
         tiles.forEach( function( tile ) {
+            var config = tile.config;
+
+            var query = "/projects/" + config['id'] + ".json";
+            var url;
+            url = "https://basecamp.com/" + tile.config['accountID']  + "/projects/" + tile.config['id'] ;
+
+            basecamp_Helpers.queryBasecampV1( config['accountID'], config['ticketID'], sampleOauth, query).then(
+                function(response){
+                    // good return ...
+                    var data = response.entity ;
+
+                     var creator="** unknown **";
+
+                    if (data['creator'] != undefined)
+                        creator = data['creator']['name'];
+
+                    var description = data['description'] ;
+                    var project = data['name'];
+
+
+                    if (description.length > 50)
+                    {
+                        description = description.substring( 0, 46)  ;
+                        description += " ..";
+                    }
+                    if (project.length > 50)
+                    {
+                        project = project.substring( 0, 46);
+                        project += " ..";
+                    }
+
+                    var dataToPush = {
+                        "data":
+                        {
+                            "title": "Basecamp Project Information",
+                            "contents": [
+                                {
+                                    "name": "Project Name",
+                                    "value" : project
+                                },
+                                {
+                                    "name": "ID",
+                                    "value": tile.config['id']
+                                    //"url" : url
+                                } ,
+                                {   "name" : "Description",
+                                    "value" : description
+                                },
+                                {   "name" : "Created_By",
+                                    "value" : creator
+                                }
+                            ],
+                            "action":{
+                                text : "Take a closer look ..." ,
+                                'context' : {name: data['name'], description: data['description'], id:tile.config['id'], url: url}
+                            }
+                        }
+                    };
+
+                    //console.log("Prepared data", JSON.stringify(dataToPush));
+
+                    jive.tiles.pushData( tile, dataToPush );
+                },
+                function(response)
+                {
+                    // bad return
+                    console.log( "bad Project Info query");
+                }
+            );
+/*
+
             var description = tile.config['description'] ;
             var project = tile.config['project'];
 
-            // the actual url we get from Basecamp refers to the API url for
-            // the project. It APPEARS that the HTML url follows a pattern that
-            // we'll just implement here until we here otherwise ...
-            // the url we get, for example is https://basecamp.com/XXXXXXX/api/v1/YYYYYYY-basecamp-pp.json
-            //    where XXXXXXX = account ID
-            //          YYYYYYY = project ID
-            //          basecamp-pp = the first two words of the projecxt
-            //
-            //  we just need to get rid of the api/vi part and the .json part ...
-
-            var url = tile.config['url'];
-            url = url.replace("api/v1/", "") ;
-            url = url.replace(".json", "") ;
+            var url;
+            url = "https://basecamp.com/" + tile.config['accountID']  + "/projects/" + tile.config['id'] ;
             if (description.length > 50)
             {
                 description = description.substring( 0, 46)  ;
@@ -80,7 +142,7 @@ exports.task = function() {
                     }
                 }
             };
-
+ */
             jive.tiles.pushData( tile, dataToPush );
         } );
     }, 10000);

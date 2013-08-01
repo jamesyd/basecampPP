@@ -44,10 +44,9 @@ exports.task = function() {
             basecamp_Helpers.queryBasecampV1( tile.config['accountID'], tile.config['ticketID'], sampleOauth, query).then(
                 function(response){
                  // good return ...
-                    var url = tile.config['url'];
-                    url = url.replace("api/v1/", "") ;
-                    url = url.replace(".json", "") ;
-                    console.log( "good query");
+                    var url;
+                    url = "https://basecamp.com/" + tile.config['accountID']  + "/projects/" + tile.config['id'] ;
+                    //console.log( "good query");
                     var dataToPush={
                         data : {"title" : tile.config['project'] + " ToDos",
                             "events" :[{}] ,
@@ -67,15 +66,17 @@ exports.task = function() {
                         else
                         {
                             start = start.replace(".000", "");
-                            dataToPush.data.events[i].location = start ;
                         }
 
-                        dataToPush.data.events[i].start = start;
+                        dataToPush.data.events[i].start= start;
                         dataToPush.data.events[i].description = response.entity[i].description;
                         dataToPush.data.events[i].action = {text : "Take a closer look ..." ,
-                            'context' : {name: tile.config['project'],
+                            'context' : {name: tile.config['project'], start : start,
                                 description: tile.config['description'],
+                                eventTitle:response.entity[i].summary,
+                                eventDescription: response.entity[i].description,
                                 id:tile.config['id'],
+                                accountID : tile.config['accountID'],
                                 url:  url}};
 
                     }

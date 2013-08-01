@@ -33,11 +33,12 @@ exports.handleBasecampPost = function(req, res ) {
 
     var query = queryPart["query"];
     var ticketID = queryPart["ticketID"];
+    var accountID = queryPart["accountID"]
     var uri = encodeURIComponent(query);
 
-    console.log("query='" + query +"' ticketID='" + ticketID + "'" + " URI="+uri)  ;
+    console.log("query='" + query +"' ticketID='" + ticketID + "'" + " accountID="+accountID)  ;
 
-    basecamp_helpers.postBasecampV1(ticketID, sampleOauth, query, req.body).then(function (response) {
+    basecamp_helpers.postBasecampV1(accountID, ticketID, sampleOauth, query, req.body).then(function (response) {
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(response['entity']));
     }).catch(function (err) {

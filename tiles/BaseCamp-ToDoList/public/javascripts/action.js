@@ -98,7 +98,13 @@ function doIt( host ) {
     });
 
     $("#create-discussion").click(function() {
-        var table = $("#issue-table").html();
+        debugger;
+        //var table = $("#issue-table").html();
+        var msgBody="";
+        msgBody += ("Project=" + $("#BasecampLinkB").text() +"<br>");
+        msgBody += ("To Do List=" + $("#todoListB").text() +"<br>");
+        msgBody += ("To Do Task=" + $("#todoNameB").text());
+
         var message = $("#message").val();
         var shares = [];
         for (var p in people) {
@@ -110,7 +116,7 @@ function doIt( host ) {
         var obj = {
             "content": {
                 "type": "text/html",
-                "text": '<p>'+message+'</p><br>'+table
+                "text": '<p>'+message+'</p><br>'+$("#todo-panel").html()
             },
             "subject": $("#subject").val(),
             "visibility": visibility,

@@ -64,7 +64,12 @@ function doIt( host ) {
                 var data = response.content;
                 //debugger;
                 //console.log(data);
+                // extract account ID from project URL ..
+                var idx1 = data[0].url.indexOf("basecamp.com") ;
+                var idx2 = data[0].url.indexOf("/api") ;
 
+                idx1 +=   13;   // position to start of account ID
+                var accountID = data[0].url.slice(idx1, idx2);
                 // could use a forEach or something here ...
                 for (i = 0; i < data.length; i++)
                 {
@@ -93,6 +98,7 @@ function doIt( host ) {
                         "id" : projectID ,
                         "url"  : url,
                         "description" : description,
+                        "accountID" : accountID,
                         "isBasecamp" : true
                     };
 
