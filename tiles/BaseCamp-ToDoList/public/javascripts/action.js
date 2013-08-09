@@ -28,6 +28,7 @@ var onLoadCallback = function( config, identifiers ) {
         identifiers : identifiers
     };
 };
+
 function doIt( host ) {
 
     // research - jQuery doesn't like cards that have the same ids .. there is probably a better way
@@ -98,7 +99,7 @@ function doIt( host ) {
     });
 
     $("#create-discussion").click(function() {
-        debugger;
+        //debugger;
         //var table = $("#issue-table").html();
         var msgBody="";
         msgBody += ("Project=" + $("#BasecampLinkB").text() +"<br>");
@@ -106,6 +107,51 @@ function doIt( host ) {
         msgBody += ("To Do Task=" + $("#todoNameB").text());
 
         var message = $("#message").val();
+
+        // and also post it to Basecamp as a comment on a todo item ......
+        var document = { "content" : message};
+        var bodyPayload = JSON.stringify(document);
+
+        //debugger;
+
+        var config = onLoadContext['config'];
+
+        if (typeof config === 'string')
+        {
+            config = JSON.parse(config) ;
+        }
+        var query = encodeURIComponent("/projects/"+config.projectID+"/todos/" + config.todoID + "/comments.json");
+        var url = host + '/BaseCamp-ToDoList/oauth/post?' +
+            "ts=" + new Date().getTime() +
+            "&ticketID=" + qTicketID +
+            "&accountID=" + config.accountID +
+            "&query=" + query;
+
+        debugger;
+        osapi.http.post({
+            'href' : url,
+            headers : { 'Content-Type' : ['application/json'] },
+            //'format' : 'json',
+            'noCache': true,
+            'authz': 'signed',
+            'body' : bodyPayload
+        }).execute(function( response ) {
+                debugger;
+                //alert( "status=" + response.status) ;
+                if ( response.status >= 400 && response.status <= 599 ) {
+                    alert("ERROR (discussion post)!" + JSON.stringify(response.content));
+                }
+                else
+                {
+                    //alert("GOOD (comment) post!" + JSON.stringify(response.content, null, 2));
+                    //alertBox('success', "The document has been posted.");
+                    alertBox('success', "The comment has been posted.");
+                }
+
+            });
+
+
+        /* this isn't used any more since we aren't starting a discussion
         var shares = [];
         for (var p in people) {
             if (sharedPeople[p]) {
@@ -116,23 +162,74 @@ function doIt( host ) {
         var obj = {
             "content": {
                 "type": "text/html",
-                "text": '<p>'+message+'</p><br>'+$("#todo-panel").html()
+                "text": '<html><body><p>'+message+'</p><br>'+$("#todo-panel").html()  +"</body></html>"
             },
             "subject": $("#subject").val(),
             "visibility": visibility,
             "users":shares
         }
+        //debugger;
         if (shares.length == 0) {
             obj["parent"] = parent;
         }
+        */
+
+        // not starting a discussion anymore ... just post the comment to the todo on basecamp and let
+        // it filter back into an activity stream on the Jive Side
+
+        /*
+        // start a discussion on Jive side ...
         osapi.jive.corev3.discussions.create(obj).execute(function(result) {
             console.log("result:", result);
+
+            // and also post it to Basecamp as a comment on a todo item ......
+            var document = { "content" : message};
+            var bodyPayload = JSON.stringify(document);
+
+            debugger;
+
+            var config = onLoadContext['config'];
+
+            if (typeof config === 'string')
+            {
+                config = JSON.parse(config) ;
+            }
+            var query = encodeURIComponent("/projects/"+config.projectID+"/todos/" + config.todoID + "/comments.json");
+            var url = host + '/BaseCamp-ToDoList/oauth/post?' +
+                "ts=" + new Date().getTime() +
+                "&ticketID=" + qTicketID +
+                "&accountID=" + config.accountID +
+                "&query=" + query;
+
+            debugger;
+            osapi.http.post({
+                'href' : url,
+                headers : { 'Content-Type' : ['application/json'] },
+                //'format' : 'json',
+                'noCache': true,
+                'authz': 'signed',
+                'body' : bodyPayload
+            }).execute(function( response ) {
+                    debugger;
+                    //alert( "status=" + response.status) ;
+                    if ( response.status >= 400 && response.status <= 599 ) {
+                        alert("ERROR (discussion post)!" + JSON.stringify(response.content));
+                    }
+                    else
+                    {
+                        //alert("GOOD (comment) post!" + JSON.stringify(response.content, null, 2));
+                        //alertBox('success', "The document has been posted.");
+                    }
+
+                });
+
         });
         $("#message").val('');
         $("#subject").val('');
         $("#people").val('');
         $("#shared-people").fadeOut();
         alertBox('success', "The discussion has been posted.");
+        */
     });
 
     window.setTimeout( function() {
@@ -193,7 +290,8 @@ function alertBox(type, message) {
         $("#BasecampLinkB").text(config.project) ;
         $("#BasecampLinkB").attr( "href", config.url)
         $("#descriptionB").text(config.projectDescription);
-        $("#todoListB").text(config.todoList);
+        $("#todoListName").text(config.todoListName);
+        $("#todoListDescription").text(config.todoListDescription)
         $("#todoNameB").text(config.title);
         $("#assigneeB").text(config.assignee)  ;
         $("#dueOnB").text(config.dueOn)  ;

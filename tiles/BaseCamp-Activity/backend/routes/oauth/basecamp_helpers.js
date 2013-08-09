@@ -23,7 +23,7 @@ function queryBasecampV1(accountID, ticketID, myOauth, uri){
                 'Authorization' : 'Bearer ' + accessToken
             };
 
-            console.log("queryBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
+            //console.log("queryBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
             return jive.util.buildRequest(
                  "https://basecamp.com/" + accountID + "/api/v1" + uri,
                 'GET', null, headers, null );
@@ -59,7 +59,7 @@ function postBasecampV1(accountID, ticketID, myOauth, uri, data){
                 'Authorization' : 'Bearer ' + accessToken
             };
 
-            console.log("postBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
+            //console.log("postBasecampV1: " + "https://basecamp.com/" + accountID + "/api/v1" + uri );
             return jive.util.buildRequest(
                 "https://basecamp.com/" + accountID + "/api/v1" + uri,
                 'POST', data, headers, null );

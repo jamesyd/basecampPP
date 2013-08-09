@@ -59,7 +59,9 @@ exports.isAuthenticated = function(req, res ) {
     console.log("isAuthenticated?? viewerID="+viewerID+" ticketID="+ticketID+" getAuthInfo="+getInfo);
 
     if (viewerID == undefined)
+    {
         viewerID = ticketID;
+    }
 
     if (viewerID == undefined)
     {

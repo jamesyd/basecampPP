@@ -28,70 +28,100 @@ function processTileInstance(instance) {
     jive.logger.debug('running pusher for ', instance.name, 'instance', instance.id);
 
     var config = instance.config;
+    var todoData;
+    var todoTitle;
+    var todoAssignee;
+    var todoDueOn;
+    var projectUrl;
+    var todoIcon;
+    var todoListName;
+    var todoListDescription="";
 
     var query = "/projects/" + config['projectID']  + "/todolists/" + config['todoListID'] + ".json";
 
     basecamp_Helpers.queryBasecampV1( config['accountID'], config['ticketID'], sampleOauth, query).then(
         function(response){
             // good return ...
-            var data = response.entity.todos.remaining   ;
+            // save this data before getting the latest project info ...
+            todoData = response.entity.todos.remaining;
+            todoListName = response.entity.name;
+            if (response.entity.description != undefined)
+                todoListDescription =    response.entity.description;
 
+            query = "/projects/" + config['projectID'] + ".json";
+            basecamp_Helpers.queryBasecampV1( config['accountID'], config['ticketID'], sampleOauth, query).then(
+               function(response) {
 
-           var fields = Object.keys(data).map( function(field) {
+                   var data = response.entity;
 
-               if (field > 9) return;
+                   var fields = Object.keys(todoData).map( function(field) {
 
-               var title = data[field].content;
-               if (data[field].content.length >= 40)
-               {
-                   title = data[field].content.substring(0,36);
-                   title += " ..";
+                       if (field > 9) return;
 
-               }
-               var assignee = "** unassigned **" ;
-               if (data[field].assignee  != undefined)
-                    assignee =  data[field].assignee.name;
-               var dueOn = "** unspecified **";
-                if (data[field].due_on != null)
-                    dueOn =  data[field].due_on;
-               var url;
-               url = "https://basecamp.com/" + tile.config['accountID']  + "/projects/" + tile.config['id'] ;
-               var icon = data[field]['creator']['avatar_url']  ;
-                return {
-                    text: '' + title,
-                    icon: data[field]['creator']['avatar_url'],
-                    'linkDescription' : 'Visit this To Do item in Basecamp' ,
-                    'action' : {
-                        //url : jive.service.options['clientUrl'] + 'BaseCamp-ToDoList/action?id=' + new Date().getTime(),
-                        context : {title: data[field].content, project:config['project'], todoList:config['todoListDescription'],
-                                   projectDescription:config['description'] ,dueOn:dueOn, assignee:assignee , url:url
-                                   }
+                       todoTitle = todoData[field].content;
+                       if (todoData[field].content.length >= 40)
+                       {
+                           todoTitle = todoData[field].content.substring(0,36);
+                           todoTitle += " ..";
 
-                    }
+                       }
+                       todoAssignee = "** unassigned **" ;
+                       if (todoData[field].assignee  != undefined)
+                            todoAssignee =  todoData[field].assignee.name;
+                       todoDueOn = "** unspecified **";
+                        if (todoData[field].due_on != null)
+                            todoDueOn =  todoData[field].due_on;
+                       projectUrl = "https://basecamp.com/" + config['accountID']  + "/projects/" + config['id'] ;
+
+                       todoIcon = todoData[field]['creator']['avatar_url']  ;
+                        return {
+                            text: '' + todoTitle,
+                            assignee: todoAssignee,
+                            due_date: todoDueOn,
+                            icon: todoIcon,
+                            'linkDescription' : 'Visit this To Do item in Basecamp' ,
+                            'action' : {
+                                //url : jive.service.options['clientUrl'] + 'BaseCamp-ToDoList/action?id=' + new Date().getTime(),
+                                context : {title: todoData[field].content, project:data['name'], todoListName: todoListName,
+                                           projectDescription:data['description'] ,dueOn:todoDueOn, assignee:todoAssignee ,
+                                            url:projectUrl, todoListDescription : todoListDescription, todoID : todoData[field].id,
+                                            projectID : config['projectID'], accountID : config['accountID']
+                                           }
+
+                            }
+                        }
+
+                    } );
+
+                    var dataToPush={
+                        data: {
+                            title : data['name'] + " To-Dos",
+                            contents: fields,
+                            action :
+                            {
+                                text: 'Basecamp' ,
+                                url : 'https://www.basecamp.com'
+                            }
+                        }
+                    };
+
+                    //console.log("Prepared data", JSON.stringify(dataToPush));
+
+                    jive.tiles.pushData( instance, dataToPush );
+
+               },
+                function(response)
+                {
+                    // bad return from project info query
+                    console.log("bad query from project info query") ;
                 }
-
-            } );
-
-            var dataToPush={
-                data: {
-                    title : config['project'] + " To-Dos",
-                    contents: fields,
-                    action :
-                    {
-                        text: 'Basecamp' ,
-                        url : 'https://www.basecamp.com'
-                    }
-                }
-            };
-
-            //console.log("Prepared data", JSON.stringify(dataToPush));
-
-            jive.tiles.pushData( instance, dataToPush );
+            );
         },
+
         function(response)
         {
-            // bad return
-            console.log( "bad query");
+            // bad return for todo list items query
+            console.log( "bad query from todo list items query");
         }
     );
 

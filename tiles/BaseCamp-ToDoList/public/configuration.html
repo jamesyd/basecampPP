@@ -1,6 +1,6 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{{{host}}}/stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="{{{host}}}/stylesheets/bootstrap.min.css">
     <script src="{{{host}}}/javascripts/jquery-1.8.3.js"></script>
     <script src="{{{host}}}/javascripts/oauth2client.js"></script>
     <script src="{{{host}}}/BaseCamp-ToDoList/javascripts/main_oauth2.js"></script>
@@ -18,7 +18,8 @@
 </div>
 
 <div id="j-card-configuration" class="j-card" style='display: none'>
-    <h2>Basecamp Project To Do List Tile Configuration</h2>
+    <div class="container-fluid">
+    <h4>Basecamp Project To Do List Tile Configuration</h4>
 
     <p>
 
@@ -27,8 +28,9 @@
         To Do List:   <select id="todoList"></select>
     </p>
 
-    <button id="btn_done">Close</button>
+    <button class="btn btn-primary" id="btn_done">Close</button>
     </p>
+    </div>
 </div>
 
 </body>

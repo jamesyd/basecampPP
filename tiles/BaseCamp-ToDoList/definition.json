@@ -2,7 +2,7 @@
     "sampleData" : {
         "title" : "BaseCamp-ToDoList",
         "contents" : [ {
-            "text" : "Initial text to be replaced"
+            "text" : "Place holder for To Do Lists"
         } ],
         "config" : {
                "listStyle" : "contentList"

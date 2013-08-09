@@ -11,6 +11,7 @@ var jiveAuthorizeUrlErrorCallback = function() {
 var preOauth2DanceCallback = function() {
     $("#j-card-authentication").show();
     $("#j-card-configuration").hide();
+
     gadgets.window.adjustHeight(350);
 };
 
@@ -84,6 +85,37 @@ function doIt( host ) {
         var viewerID = identifiers['viewer'];   // user ID
         // handle the case of a callback with no ticketID passed .. this happens if
         // we verified that the viewer ID already has a valid token without doing the OAuth2 dance ...
+        var config = onLoadContext['config'];
+        if (typeof config === 'string')
+        {
+            config = JSON.parse(config) ;
+        }
+        if (config['ticketID'] != undefined && config['ticketID'] != viewerID)
+        {
+           // alert("oops!")
+           // we have  a problem ... we validated a ticket ID that didn't match the viewerID, so
+           // we need to reauthorize using the viewerID ...
+           delete config['ticketID'] ;
+            var options = {
+                serviceHost : host,
+                grantDOMElementID : '#oauth',
+                ticketErrorCallback : ticketErrorCallback,
+                jiveAuthorizeUrlErrorCallback : jiveAuthorizeUrlErrorCallback,
+                oauth2SuccessCallback : oauth2SuccessCallback,
+                preOauth2DanceCallback : preOauth2DanceCallback,
+                onLoadCallback : onLoadCallback,
+                authorizeUrl : host + '/BaseCamp-ToDoList/oauth/authorizeUrl',
+                ticketURL: '/oauth/isAuthenticated',
+                extraAuthParams: {
+                    type: 'web_server'
+                }
+            };
+
+            OAuth2ServerFlow( options ).launch();
+
+            return;
+        }
+
         if (ticketID == undefined)    ticketID = viewerID;
 
         g_ticketID = ticketID;
@@ -106,7 +138,7 @@ function doIt( host ) {
                     alert("ERROR!" + JSON.stringify(response.content));
                 }
                 //else
-                //   alert("GOOD!" + JSON.stringify(response.content, null, 2));
+                   //alert("GOOD!" + JSON.stringify(response.content, null, 2));
 
                 //debugger;
 
@@ -178,7 +210,7 @@ function doIt( host ) {
                 });
             });
 
-
+        gadgets.window.adjustHeight();
     };
 
     var options = {
@@ -199,6 +231,7 @@ function doIt( host ) {
     $("#btn_done").click( function() {
         console.log(onLoadContext);
     });
+
 
     OAuth2ServerFlow( options ).launch();
 }
